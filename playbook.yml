@@ -1,0 +1,64 @@
+- name: playbook
+  hosts: host
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+    - name: update
+      apt:
+        upgrade: yes
+        update_cache: yes
+        cache_valid_time: 86400
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu jammy stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+    - name: Clone repository
+      git:
+        repo: "https://github.com/sangnd1510/ChatApp.git"
+        dest: "/home/ubuntu/ChatApp"
+        update: yes
+
+    - name: Run backend app
+      ansible.builtin.command:
+        cmd: docker compose up
+      args:
+        chdir: /home/ubuntu/ChatApp/api 
+
+    - name: Run frontend app
+      ansible.builtin.command:
+        cmd: docker compose up
+      args:
+        chdir: /home/ubuntu/ChatApp/client 
+
+    - name: Prune everything
+      community.docker.docker_prune:
+        containers: true
+        images: true
+
+  
+      
