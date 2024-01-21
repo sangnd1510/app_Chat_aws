@@ -45,13 +45,13 @@
 
     - name: Run backend app
       ansible.builtin.command:
-        cmd: docker compose up
+        cmd: docker compose up -d
       args:
         chdir: /home/ubuntu/ChatApp/api 
 
     - name: Run frontend app
       ansible.builtin.command:
-        cmd: docker compose up
+        cmd: docker compose up -d
       args:
         chdir: /home/ubuntu/ChatApp/client 
 
